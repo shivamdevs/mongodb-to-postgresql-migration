@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { CollectionSchema, PostgresTableSchema } from '../types';
+import { CollectionSchema, PostgresTableSchema, ColumnMapping } from '../types';
 import { Logger } from '../utils';
 
 export class AIAssistant {
@@ -101,6 +101,84 @@ export class AIAssistant {
 
     } catch (error) {
       this.logger.error('AI assistant error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get column mapping suggestions for pre-existing tables
+   */
+  async suggestColumnMapping(
+    mongoDocument: Record<string, unknown>,
+    postgresSchema: PostgresTableSchema
+  ): Promise<ColumnMapping[] | null> {
+    if (!this.openai) {
+      return null;
+    }
+
+    try {
+      this.logger.info(`Using AI to suggest column mapping for table: ${postgresSchema.name}`);
+
+      const prompt = `
+        Given this MongoDB document sample and PostgreSQL table schema, suggest how to map MongoDB fields to PostgreSQL columns.
+        
+        MongoDB Document Sample:
+        ${JSON.stringify(mongoDocument, null, 2)}
+        
+        PostgreSQL Table Schema:
+        Table: ${postgresSchema.name}
+        Columns: ${postgresSchema.columns.map(col => `${col.name} (${col.type}, nullable: ${col.nullable})`).join(', ')}
+        
+        Please provide a mapping that shows:
+        1. Which MongoDB field maps to which PostgreSQL column
+        2. Any data transformations needed
+        3. How to handle MongoDB's _id field
+        
+        Respond in JSON format:
+        {
+          "mappings": [
+            {
+              "mongoField": "mongodb_field_name",
+              "postgresColumn": "postgres_column_name",
+              "transformation": "optional_transformation_description"
+            }
+          ]
+        }
+      `;
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a data mapping expert. Provide practical field mappings for database migration.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.1
+      });
+
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        this.logger.warn('No AI response for column mapping');
+        return null;
+      }
+
+      try {
+        const result = JSON.parse(content);
+        const mappings = result.mappings || [];
+        this.logger.debug(`AI suggested ${mappings.length} column mappings`);
+        return mappings;
+      } catch (parseError) {
+        this.logger.warn('Failed to parse AI column mapping response:', parseError);
+        return null;
+      }
+
+    } catch (error) {
+      this.logger.error('AI column mapping error:', error);
       return null;
     }
   }

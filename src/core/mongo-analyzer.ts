@@ -143,4 +143,16 @@ export class MongoAnalyzer {
       .limit(limit)
       .toArray();
   }
+
+  /**
+   * Get a single document from collection for schema analysis
+   */
+  async getSingleDocument(collectionName: string): Promise<Record<string, unknown> | null> {
+    if (!this.db) {
+      throw new Error('Not connected to MongoDB');
+    }
+
+    const document = await this.db.collection(collectionName).findOne({});
+    return document ? (document as Record<string, unknown>) : null;
+  }
 }

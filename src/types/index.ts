@@ -87,3 +87,16 @@ export interface MigrationResult {
   totalDocuments: number;
   migrationTime: number;
 }
+
+export interface TableRelationship {
+  tableName: string;
+  referencedTable: string;
+  columnName: string;
+  referencedColumn: string;
+}
+
+export interface ColumnMapping {
+  mongoField: string;
+  postgresColumn: string;
+  transformation?: string;
+}
