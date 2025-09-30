@@ -35,7 +35,7 @@ export async function migrate(config: MigrationConfig): Promise<MigrationResult>
 export * from './types';
 
 // Export utility functions that might be useful
-export { Logger, mapMongoTypeToPostgres, sanitizeIdentifier } from './utils';
+export { Logger, mapMongoTypeToPostgres, sanitizeIdentifier, DDLParser } from './utils';
 
 // Export core classes for advanced usage
 export { MongoAnalyzer } from './core/mongo-analyzer';
