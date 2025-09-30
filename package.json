@@ -1,60 +1,60 @@
 {
-  "name": "mongodb-to-postgresql-migration",
-  "version": "1.0.0",
-  "description": "A simple and intelligent npm package to migrate data from MongoDB (NoSQL) to PostgreSQL (SQL) with minimal effort from the developer.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "jest",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
-    "prepare": "npm run build"
-  },
-  "keywords": [
-    "mongodb",
-    "postgresql",
-    "migration",
-    "database",
-    "nosql",
-    "sql",
-    "data-migration",
-    "typescript",
-    "schema-mapping"
-  ],
-  "author": "Shivam Dewangan",
-  "license": "MIT",
-  "files": [
-    "dist/",
-    "README.md",
-    "LICENSE"
-  ],
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "dependencies": {
-    "mongodb": "^6.0.0",
-    "openai": "^4.0.0",
-    "pg": "^8.11.0"
-  },
-  "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "@types/node": "^20.0.0",
-    "@types/pg": "^8.10.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.50.0",
-    "jest": "^29.0.0",
-    "ts-jest": "^29.0.0",
-    "typescript": "^5.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/shivamdevs/mongodb-to-postgresql-migration.git"
-  },
-  "bugs": {
-    "url": "https://github.com/shivamdevs/mongodb-to-postgresql-migration/issues"
-  },
-  "homepage": "https://github.com/shivamdevs/mongodb-to-postgresql-migration#readme"
+	"name": "mongodb-to-postgresql-migration",
+	"version": "0.0.1",
+	"description": "A simple and intelligent npm package to migrate data from MongoDB (NoSQL) to PostgreSQL (SQL) with minimal effort from the developer.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"test": "jest",
+		"lint": "eslint src/**/*.ts",
+		"lint:fix": "eslint src/**/*.ts --fix",
+		"prepare": "npm run build"
+	},
+	"keywords": [
+		"mongodb",
+		"postgresql",
+		"migration",
+		"database",
+		"nosql",
+		"sql",
+		"data-migration",
+		"typescript",
+		"schema-mapping"
+	],
+	"author": "Shivam Dewangan",
+	"license": "MIT",
+	"files": [
+		"dist/",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=14.0.0"
+	},
+	"dependencies": {
+		"mongodb": "^6.0.0",
+		"openai": "^4.0.0",
+		"pg": "^8.11.0"
+	},
+	"devDependencies": {
+		"@types/jest": "^29.5.14",
+		"@types/node": "^20.0.0",
+		"@types/pg": "^8.10.0",
+		"@typescript-eslint/eslint-plugin": "^6.0.0",
+		"@typescript-eslint/parser": "^6.0.0",
+		"eslint": "^8.50.0",
+		"jest": "^29.0.0",
+		"ts-jest": "^29.0.0",
+		"typescript": "^5.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/shivamdevs/mongodb-to-postgresql-migration.git"
+	},
+	"bugs": {
+		"url": "https://github.com/shivamdevs/mongodb-to-postgresql-migration/issues"
+	},
+	"homepage": "https://github.com/shivamdevs/mongodb-to-postgresql-migration#readme"
 }
