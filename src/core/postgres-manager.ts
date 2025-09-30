@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { PostgresTableSchema, ColumnSchema, CollectionSchema } from '../types';
+import { PostgresTableSchema, ColumnSchema, CollectionSchema, ColumnMapping } from '../types';
 import { Logger, mapMongoTypeToPostgres, sanitizeIdentifier } from '../utils';
 import { promises as fs } from 'fs';
 
@@ -173,7 +173,86 @@ export class PostgresManager {
       const insertQuery = `
         INSERT INTO ${sanitizedTableName} (${columnNames.join(', ')})
         VALUES (${placeholders.join(', ')})
-        ON CONFLICT (mongo_id) DO NOTHING
+        ${columnNames.includes('mongo_id') ? 'ON CONFLICT (mongo_id) DO NOTHING' : ''}
+      `;
+
+      try {
+        await this.client.query(insertQuery, values);
+      } catch (error) {
+        this.logger.error(`Failed to insert document into ${sanitizedTableName}:`, error);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Insert documents with custom column mapping for pre-existing tables
+   */
+  async insertDocumentsWithMapping(
+    tableName: string, 
+    documents: unknown[], 
+    columnMappings: ColumnMapping[]
+  ): Promise<void> {
+    if (!this.client || documents.length === 0) {
+      return;
+    }
+
+    const sanitizedTableName = sanitizeIdentifier(tableName);
+    
+    // Get table schema to verify columns exist
+    const tableSchema = await this.getTableSchema(sanitizedTableName);
+    if (!tableSchema) {
+      throw new Error(`Table ${sanitizedTableName} does not exist`);
+    }
+
+    const existingColumns = new Set(tableSchema.columns.map(col => col.name));
+    
+    // Filter mappings to only include existing columns
+    const validMappings = columnMappings.filter(mapping => 
+      existingColumns.has(mapping.postgresColumn)
+    );
+
+    if (validMappings.length === 0) {
+      this.logger.warn(`No valid column mappings found for table ${tableName}`);
+      return;
+    }
+
+    for (const doc of documents) {
+      const values: unknown[] = [];
+      const columnNames: string[] = [];
+      const placeholders: string[] = [];
+      
+      for (let i = 0; i < validMappings.length; i++) {
+        const mapping = validMappings[i];
+        let value: unknown;
+
+        if (mapping.mongoField === '_id') {
+          value = (doc as any)?._id?.toString() || null;
+        } else {
+          value = this.getNestedValue(doc, mapping.mongoField);
+          
+          // Convert complex objects to JSON
+          if (value && typeof value === 'object' && !(value instanceof Date)) {
+            value = JSON.stringify(value);
+          }
+        }
+
+        values.push(value);
+        columnNames.push(mapping.postgresColumn);
+        placeholders.push(`$${i + 1}`);
+      }
+
+      if (columnNames.length === 0) continue;
+
+      // Find a unique constraint for conflict resolution
+      const uniqueColumn = tableSchema.columns.find(col => col.unique || col.primaryKey);
+      const conflictResolution = uniqueColumn ? 
+        `ON CONFLICT (${uniqueColumn.name}) DO NOTHING` : '';
+
+      const insertQuery = `
+        INSERT INTO ${sanitizedTableName} (${columnNames.join(', ')})
+        VALUES (${placeholders.join(', ')})
+        ${conflictResolution}
       `;
 
       try {

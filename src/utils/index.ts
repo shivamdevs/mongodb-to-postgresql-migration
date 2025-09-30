@@ -118,3 +118,6 @@ export function inferTypeFromValue(value: unknown): MongoFieldType {
 
   return 'string';
 }
+
+// Export DDLParser
+export { DDLParser } from './ddl-parser';
